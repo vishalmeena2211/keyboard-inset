@@ -1,0 +1,80 @@
+{
+  "name": "keyboard-inset",
+  "version": "0.1.0",
+  "description": "The mobile on-screen keyboard's height as a CSS variable. Pin footers and composers with var(--kb-height) instead of fighting iOS Safari.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.global.js",
+  "jsdelivr": "./dist/index.global.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js",
+      "require": "./dist/react.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "keyboard",
+    "virtual-keyboard",
+    "visualviewport",
+    "visual-viewport",
+    "ios-safari",
+    "mobile-web",
+    "safe-area",
+    "100vh",
+    "css-variables",
+    "sticky-footer",
+    "chat-composer",
+    "react-hook"
+  ],
+  "author": "Vishal Meena <meenavishal2211@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vishalmeena2211/keyboard-inset.git"
+  },
+  "homepage": "https://github.com/vishalmeena2211/keyboard-inset#readme",
+  "bugs": {
+    "url": "https://github.com/vishalmeena2211/keyboard-inset/issues"
+  },
+  "peerDependencies": {
+    "react": ">=17"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.7.0",
+    "@types/react": "^19.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

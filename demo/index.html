@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!--
+      viewport-fit=cover so the composer can also respect the home-indicator safe area.
+      Add `interactive-widget=overlays-content` here if you want Android to stop resizing
+      the layout viewport; keyboard-inset handles either setting.
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>keyboard-inset demo</title>
+    <style>
+      :root {
+        --composer-h: 68px;
+        --ink: #0f1115;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --bg: #f6f7f9;
+        --accent: #2563eb;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--ink);
+        font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      /* The classic 100vh replacement: --safe-vh is 1% of the *visual* viewport. */
+      .app {
+        display: flex;
+        flex-direction: column;
+        height: calc(var(--safe-vh, 1vh) * 100);
+        max-width: 560px;
+        margin: 0 auto;
+        background: #fff;
+        border-left: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+      }
+
+      header {
+        flex: 0 0 auto;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      header h1 { font-size: 15px; margin: 0; letter-spacing: -0.01em; }
+      header span { font-size: 12px; color: var(--muted); }
+
+      .messages {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 16px;
+        /* Keep the last message clear of the composer *and* the keyboard. */
+        padding-bottom: calc(var(--composer-h) + var(--kb-height, 0px) + 16px);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .msg {
+        max-width: 78%;
+        padding: 9px 13px;
+        border-radius: 16px;
+        background: #eef0f3;
+      }
+      .msg.me { align-self: flex-end; background: var(--accent); color: #fff; }
+
+      .composer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        /* The whole point of the package. */
+        bottom: var(--kb-height, 0px);
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: saturate(180%) blur(12px);
+        border-top: 1px solid var(--line);
+        display: flex;
+        gap: 8px;
+        transition: bottom 120ms ease-out;
+      }
+      /* Flip the switch to reproduce the bug this package fixes. */
+      body.broken .composer { bottom: 0; }
+      /* No transition while the keyboard is animating open; it lags behind otherwise. */
+      body.kb-open .composer { transition: none; }
+
+      .composer input {
+        flex: 1 1 auto;
+        min-width: 0;
+        font: inherit;
+        padding: 11px 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        /* 16px or larger, or iOS zooms the page on focus. */
+        font-size: 16px;
+      }
+      .composer input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+      .composer button {
+        flex: 0 0 auto;
+        font: inherit;
+        font-weight: 600;
+        padding: 0 18px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .readout {
+        position: fixed;
+        left: 8px;
+        /* This panel rides the keyboard too. */
+        bottom: calc(var(--kb-height, 0px) + var(--composer-h) + 12px);
+        z-index: 5;
+        pointer-events: none;
+        font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+        background: rgba(15, 17, 21, 0.88);
+        color: #d8dee9;
+        padding: 8px 10px;
+        border-radius: 8px;
+        min-width: 190px;
+      }
+      .readout b { color: #fff; font-weight: 600; }
+      .readout .row { display: flex; justify-content: space-between; gap: 12px; }
+
+      .toggle {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 12px;
+        color: var(--muted);
+        margin-left: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <h1>keyboard-inset</h1>
+        <span>tap the field</span>
+        <label class="toggle">
+          <input type="checkbox" id="broken" />
+          break it
+        </label>
+      </header>
+
+      <div class="messages" id="messages">
+        <div class="msg">Open this on a phone and tap the input below.</div>
+        <div class="msg">
+          The composer is pinned with <code>bottom: var(--kb-height)</code>, so it rides on
+          top of the keyboard instead of disappearing behind it.
+        </div>
+        <div class="msg me">And the list height uses <code>calc(var(--safe-vh) * 100)</code>.</div>
+        <div class="msg">
+          Tick “break it” to switch the composer back to <code>bottom: 0</code> and watch the
+          keyboard swallow it.
+        </div>
+      </div>
+    </div>
+
+    <div class="readout" id="readout"></div>
+
+    <form class="composer" id="composer" autocomplete="off">
+      <input id="input" type="text" placeholder="Message" />
+      <button type="submit">Send</button>
+    </form>
+
+    <script src="../dist/index.global.js"></script>
+    <script>
+      var messages = document.getElementById('messages');
+      var readout = document.getElementById('readout');
+      var input = document.getElementById('input');
+
+      function row(label, value) {
+        return '<div class="row"><span>' + label + '</span><b>' + value + '</b></div>';
+      }
+
+      function render(state) {
+        readout.innerHTML =
+          row('supported', KeyboardInset.isSupported()) +
+          row('source', state.source) +
+          row('open', state.open) +
+          row('height', state.height + 'px') +
+          row('viewport', Math.round(state.viewportHeight) + 'px');
+      }
+
+      // One call. Everything else is CSS.
+      KeyboardInset.init({ onChange: render });
+      render(KeyboardInset.getState());
+
+      // The same state is also on the window as a CustomEvent, for non-module consumers.
+      window.addEventListener('keyboardinset', function (event) {
+        if (event.detail.open) {
+          messages.scrollTop = messages.scrollHeight;
+        }
+      });
+
+      document.getElementById('composer').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var text = input.value.trim();
+        if (!text) return;
+        var el = document.createElement('div');
+        el.className = 'msg me';
+        el.textContent = text;
+        messages.appendChild(el);
+        messages.scrollTop = messages.scrollHeight;
+        input.value = '';
+        input.focus();
+      });
+
+      document.getElementById('broken').addEventListener('change', function (event) {
+        document.body.classList.toggle('broken', event.target.checked);
+      });
+    </script>
+  </body>
+</html>
