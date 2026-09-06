@@ -4,8 +4,9 @@ _The mobile on-screen keyboard's height, as a CSS variable._
 
 [![npm version](https://img.shields.io/npm/v/keyboard-inset.svg)](https://www.npmjs.com/package/keyboard-inset)
 [![minzipped size](https://img.shields.io/bundlephobia/minzip/keyboard-inset)](https://bundlephobia.com/package/keyboard-inset)
-[![license MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![TypeScript](https://img.shields.io/badge/types-TypeScript-3178c6.svg)](./src/index.ts)
+[![license MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/vishalmeena2211/keyboard-inset/blob/main/LICENSE)
+[![TypeScript](https://img.shields.io/badge/types-TypeScript-3178c6.svg)](https://github.com/vishalmeena2211/keyboard-inset/blob/main/src/index.ts)
+[![GitHub](https://img.shields.io/badge/GitHub-vishalmeena2211%2Fkeyboard--inset-181717?logo=github)](https://github.com/vishalmeena2211/keyboard-inset)
 
 ```css
 /* Before — the keyboard opens and eats your composer. */
@@ -323,6 +324,13 @@ npm test         # builds, then runs node:test against dist/
 
 The demo at `demo/index.html` loads `dist/index.global.js` — run `npm run build`, serve the
 folder (`npx serve .`) and open it on a real phone. Simulators do not raise a real keyboard.
+
+## Links
+
+- **Repository** — [github.com/vishalmeena2211/keyboard-inset](https://github.com/vishalmeena2211/keyboard-inset)
+- **npm** — [npmjs.com/package/keyboard-inset](https://www.npmjs.com/package/keyboard-inset)
+- **Issues & feature requests** — [Report an issue](https://github.com/vishalmeena2211/keyboard-inset/issues)
+- **Changelog** — [releases](https://github.com/vishalmeena2211/keyboard-inset/releases)
 
 ## License
 
